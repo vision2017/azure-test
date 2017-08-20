@@ -17,8 +17,6 @@
     "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/LoadBalancerFrontEnd')]",
     "lbPoolID": "[concat(variables('lbID'),'/backendAddressPools/BackendPool1')]",
     "lbProbeID": "[concat(variables('lbID'),'/probes/tcpProbe')]"
-   
-
   },
 
   "resources": [
@@ -80,5 +78,10 @@
       }
     }
   ],
-      "outputs": {}
+  "outputs": {
+    "lbID": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/loadBalancers',parameters('vmWebLoadBalancerName'))]"
+    }
+  }
     }

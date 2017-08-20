@@ -90,6 +90,11 @@
         "description": "Allowing subnet for rdp"
       }
     },
+    "networkInterfaceNamePrefix": {
+      "type": "string",
+      "defaultValue": "vmNetwork",
+      "minLength": 1
+    },
     "baseUrl": {
       "type": "string",
       "metadata": {
@@ -482,7 +487,8 @@
       "availabilitySetSetup": "[concat(parameters('baseUrl'),'/shared','/availabilitySets.json')]",
       "vnetSetup": "[concat(parameters('baseUrl'),'/shared','/vnetPrivate.json')]",
       "setupLB1": "[concat(parameters('baseUrl'),'/shared','/loadBalancer1.json')]",
-      "setupNSG": "[concat(parameters('baseUrl'),'/shared','/networkSecurityGroup.json')]"
+      "setupNSG": "[concat(parameters('baseUrl'),'/shared','/networkSecurityGroup.json')]",
+      "creatingNics": "[concat(parameters('baseUrl'),'/shared','/networkInterfaces1.json')]"
 
     }
 
@@ -626,7 +632,7 @@
               "value": "[parameters('location')]"
             },
             "vNSGName": {
-              "value": "[parameters('vmWebLoadBalancerName')]"
+              "value": "[parameters('vNSGName')]"
             },
             "rdpSubnetPrefix1": {
               "value": "[parameters('rdpSubnetPrefix1')]"
@@ -636,83 +642,42 @@
             }
           }
          }
-      }/*,
+      },
       {
          "name":"CreatingNetworkInterfaces",
          "type":"Microsoft.Resources/deployments",
          "apiVersion":"2015-01-01",
-         "dependsOn":[
-            "Microsoft.Resources/deployments/CreatingVirtualNetwork",
-            "Microsoft.Resources/deployments/SettingUpRdp",
-            "Microsoft.Resources/deployments/SettingUpLoadBalancers"
-         ],
+        "dependsOn": [
+          "Microsoft.Resources/deployments/CreatingVirtualNetwork",
+          "Microsoft.Resources/deployments/SettingUpPublicIp",
+          "Microsoft.Resources/deployments/SettingUpLoadBalancers",
+          "Microsoft.Resources/deployments/SettingUpNetworkSecurityGroups"
+        ],
          "properties":{
             "mode":"Incremental",
             "templateLink":{
-               "uri":"[variables('configuration').creatingNicsUrl]",
+               "uri":"[variables('configuration').creatingNics]",
                "contentVersion":"1.0.0.0"
             },
-            "parameters":{
-               "location":{
-                  "value":"[parameters('location')]"
-               },
-               "adPDCNicName":{
-                  "value":"[variables('adPDCNicName')]"
-               },
-               "adPDCNICIPAddress":{
-                  "value":"[parameters('adPDCNICIPAddress')]"
-               },
-               "staticSubnetRef":{
-                  "value":"[variables('staticSubnetRef')]"
-               },
-               "adBEAddressPoolID":{
-                  "value":"[variables('derivedIds').adBEAddressPoolID]"
-               },
-               "adRDPNATRuleID":{
-                  "value":"[variables('derivedIds').adRDPNATRuleID]"
-               },
-               "adBDCNicName":{
-                  "value":"[variables('adBDCNicName')]"
-               },
-               "adBDCNICIPAddress":{
-                  "value":"[parameters('adBDCNICIPAddress')]"
-               },
-               "sqlVMName":{
-                  "value":"[variables('vmSettings').sqlVMName]"
-               },
-               "sqlSubnetRef":{
-                  "value":"[variables('sqlSubnetRef')]"
-               },
-               "sqlBEAddressPoolID":{
-                  "value":"[variables('derivedIds').sqlBEAddressPoolID]"
-               },
-               "spwebVMName":{
-                  "value":"[variables('vmSettings').spwebVMName]"
-               },
-               "spWebSubnetRef":{
-                  "value":"[variables('spWebSubnetRef')]"
-               },
-               "spWebBEAddressPoolID":{
-                  "value":"[variables('derivedIds').spWebBEAddressPoolID]"
-               },
-               "spappVMName":{
-                  "value":"[variables('vmSettings').spappVMName]"
-               },
-               "spAppSubnetRef":{
-                  "value":"[variables('spAppSubnetRef')]"
-               },
-               "spCABEAddressPoolID":{
-                  "value":"[variables('derivedIds').spCABEAddressPoolID]"
-               },
-               "spCANATRuleID":{
-                  "value":"[variables('derivedIds').spCANATRuleID]"
-               },
-               "sqlwNicName":{
-                  "value":"[variables('sqlwNicName')]"
-               }
+          "parameters": {
+            "location": {
+              "value": "[parameters('location')]"
+            },
+            "vNetPrivateName": {
+              "value": "[parameters('vNetPrivateName')]"
+            },
+            "vNetPrivateSubnet1Name": {
+              "value": "[parameters('vNetPrivateSubnet1Name')]"
+            },
+            "lbID": {
+              "value": "[reference('SettingUpLoadBalancers').outputs.lbID.value]"
+            },
+            "webPublicIPDnsNamePrefix": {
+              "value": "[parameters('webPublicIPDnsNamePrefix')]"
             }
+          }
          }
-      },
+      }/*,
       {
          "name":"ProvisioningPrimaryADDomainController",
          "type":"Microsoft.Resources/deployments",

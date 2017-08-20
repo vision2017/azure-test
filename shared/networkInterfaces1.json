@@ -1,0 +1,76 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string"
+    },
+    "networkInterfaceNamePrefix": {
+      "type": "string"
+    },
+    "webPublicIPDnsNamePrefix": {
+      "type": "string"
+    },
+    "vNetPrivateSubnet1Name": {
+      "type": "string"
+    },
+    "lbID": {
+      "type": "string"
+    },
+    "webPublicIPDnsName": {
+      "type": "string"
+    },
+    "vNSGName": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "vmServerVnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vNetPrivateName'))]",
+    "vmServerSubnetRef": "[concat(variables('vmServerVnetID'), '/subnets/', parameters('vNetPrivateSubnet1Name'))]"
+
+  },
+
+  "resources": [
+    {
+      "name": "[concat(parameters('networkInterfaceNamePrefix'),'-',copyIndex(1),'-nic-0')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "copy": {
+        "count": 2,
+        "name": "[concat(parameters('networkInterfaceNamePrefix'),'Copy')]"
+      },
+      "tags": {
+        "displayName": "[concat(parameters('networkInterfaceNamePrefix'),'-',copyIndex(1),'-nic-0')]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('vmServerSubnetRef')]"
+
+              },
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[concat(parameters('lbID'), '/backendAddressPools/BackendPool1')]"
+                }
+              ],
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(parameters('webPublicIPDnsNamePrefix'),copyIndex(1),uniqueString(resourceGroup().id)))]"
+
+              }
+
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('vNSGName'))]"
+        }
+      }
+    }
+  ],
+      "outputs": {}
+    }
