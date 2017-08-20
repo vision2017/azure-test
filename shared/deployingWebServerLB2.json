@@ -151,11 +151,11 @@
 
   },
 
-  "resources": [ 
+  "resources": [
     {
       "name": "[concat(parameters('storageAccountNamePrefix'),'3',uniqueString(resourceGroup().id))]",
       "type": "Microsoft.Storage/storageAccounts",
-      "location": "North Europe",
+      "location": "[parameters('locationServer3')]",
       "apiVersion": "2015-06-15",
       "dependsOn": [],
       "tags": {
