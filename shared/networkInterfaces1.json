@@ -5,6 +5,9 @@
     "location": {
       "type": "string"
     },
+    "vNetPrivateName": {
+      "type": "string"
+    },
     "networkInterfaceNamePrefix": {
       "type": "string"
     },
@@ -15,9 +18,6 @@
       "type": "string"
     },
     "lbID": {
-      "type": "string"
-    },
-    "webPublicIPDnsName": {
       "type": "string"
     },
     "vNSGName": {
@@ -34,7 +34,7 @@
     {
       "name": "[concat(parameters('networkInterfaceNamePrefix'),'-',copyIndex(1),'-nic-0')]",
       "type": "Microsoft.Network/networkInterfaces",
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('location')]",
       "apiVersion": "2016-03-30",
       "copy": {
         "count": 2,
