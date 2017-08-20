@@ -672,6 +672,9 @@
             "lbID": {
               "value": "[reference('SettingUpLoadBalancers').outputs.lbID.value]"
             },
+            "networkInterfaceNamePrefix": {
+              "value": "[parameters('networkInterfaceNamePrefix')]"
+            },
             "webPublicIPDnsNamePrefix": {
               "value": "[parameters('webPublicIPDnsNamePrefix')]"
             }
