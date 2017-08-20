@@ -69,6 +69,27 @@
       "defaultValue": "LB1",
       "minlength": 1
     },
+    "vNSGName": {
+      "type": "string",
+      "defaultValue": "NSG",
+      "minlength": 1
+    },
+    "rdpSubnetPrefix1": {
+      "type": "string",
+      "defaultValue": "86.57.255.88/29",
+      "minlength": 1,
+      "metadata": {
+        "description": "Allowing subnet for rdp"
+      }
+    },
+    "rdpSubnetPrefix2": {
+      "type": "string",
+      "defaultValue": "80.249.92.182",
+      "minlength": 1,
+      "metadata": {
+        "description": "Allowing subnet for rdp"
+      }
+    },
     "baseUrl": {
       "type": "string",
       "metadata": {
@@ -460,7 +481,8 @@
       "publicIPAdressSetup": "[concat(parameters('baseUrl'),'/shared','/publicIP.json')]",
       "availabilitySetSetup": "[concat(parameters('baseUrl'),'/shared','/availabilitySets.json')]",
       "vnetSetup": "[concat(parameters('baseUrl'),'/shared','/vnetPrivate.json')]",
-      "setupLB1": "[concat(parameters('baseUrl'),'/shared','/loadBalancer1.json')]"
+      "setupLB1": "[concat(parameters('baseUrl'),'/shared','/loadBalancer1.json')]",
+      "setupNSG": "[concat(parameters('baseUrl'),'/shared','/networkSecurityGroup.json')]"
 
     }
 
@@ -561,29 +583,56 @@
           }
          }
       },
-      {
-         "name":"SettingUpLoadBalancers",
+    {
+      "name": "SettingUpLoadBalancers",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "Microsoft.Resources/deployments/SettingUpPublicIp",
+        "Microsoft.Resources/deployments/CreatingVirtualNetwork"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('configuration').setupLB1]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "vmWebLoadBalancerName": {
+            "value": "[parameters('vmWebLoadBalancerName')]"
+          },
+          "publicIPLBName": {
+            "value": "[reference('SettingUpPublicIp').outputs.publicIPLBName.value]"
+          }
+        }
+      }
+    },
+    {
+         "name":"SettingUpNetworkSecurityGroups",
          "type":"Microsoft.Resources/deployments",
          "apiVersion":"2015-01-01",
-        "dependsOn": [          
-          "Microsoft.Resources/deployments/SettingUpPublicIp",
-          "Microsoft.Resources/deployments/CreatingVirtualNetwork"
-        ],
+        
          "properties":{
             "mode":"Incremental",
             "templateLink":{
-               "uri":"[variables('configuration').setupLB1]",
+               "uri":"[variables('configuration').setupNSG]",
                "contentVersion":"1.0.0.0"
             },
           "parameters": {
             "location": {
               "value": "[parameters('location')]"
             },
-            "vmWebLoadBalancerName": {
+            "vNSGName": {
               "value": "[parameters('vmWebLoadBalancerName')]"
             },
-            "publicIPLBName": {
-              "value": "[reference('SettingUpPublicIp').outputs.publicIPLBName.value]"
+            "rdpSubnetPrefix1": {
+              "value": "[parameters('rdpSubnetPrefix1')]"
+            },
+            "rdpSubnetPrefix2": {
+              "value": "[parameters('rdpSubnetPrefix2')]"
             }
           }
          }
