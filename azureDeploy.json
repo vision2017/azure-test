@@ -47,6 +47,23 @@
         "description": "Availability set for VMs"
       }
     },
+    "vNetPrivateName": {
+      "type": "string",
+      "defaultValue": "web-vnet-private",
+      "minLength": 1
+    },
+    "vNetPrivatePrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16"
+    },
+    "vNetPrivateSubnet1Name": {
+      "type": "string",
+      "defaultValue": "subnet-1"
+    },
+    "vNetPrivateSubnet1Prefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24"
+    },
     "baseUrl": {
       "type": "string",
       "metadata": {
@@ -436,7 +453,8 @@
       */
       "creatingStorageAccounts": "[concat(parameters('baseUrl'),'/shared','/storageAccounts.json')]",
       "publicIPAdressSetup": "[concat(parameters('baseUrl'),'/shared','/publicIP.json')]",
-      "availabilitySetSetup": "[concat(parameters('baseUrl'),'/shared','/availabilitySets.json')]"
+      "availabilitySetSetup": "[concat(parameters('baseUrl'),'/shared','/availabilitySets.json')]",
+      "vnetSetup": "[concat(parameters('baseUrl'),'/shared','/vnetPrivate.json')]"
 
     }
 
@@ -507,7 +525,7 @@
             }
           }
         }
-      }/*,
+      },
       {
          "name":"CreatingVirtualNetwork",
          "type":"Microsoft.Resources/deployments",
@@ -515,25 +533,28 @@
          "properties":{
             "mode":"Incremental",
             "templateLink":{
-               "uri":"[variables('configuration').vnetSetupURL]",
+               "uri":"[variables('configuration').vnetSetup]",
                "contentVersion":"1.0.0.0"
             },
-            "parameters":{
-               "location":{
-                  "value":"[parameters('location')]"
-               },
-               "virtualNetworkName":{
-                  "value":"[parameters('virtualNetworkName')]"
-               },
-               "virtualNetworkAddressRange":{
-                  "value":"[parameters('virtualNetworkAddressRange')]"
-               },
-               "subnets":{
-                  "value":"[variables('subnets')]"
-               }
+          "parameters": {
+            "location": {
+              "value": "[parameters('location')]"
+            },
+            "vNetPrivateName": {
+              "value": "[parameters('vNetPrivateName')]"
+            },
+            "vNetPrivatePrefix": {
+              "value": "[parameters('vNetPrivatePrefix')]"
+            },
+            "vNetPrivateSubnet1Name": {
+              "value": "[parameters('vNetPrivateSubnet1Name')]"
+            },
+            "vNetPrivateSubnet1Prefix": {
+              "value": "[parameters('vNetPrivateSubnet1Prefix')]"
             }
+          }
          }
-      },
+      }/*,
       {
          "name":"SettingUpLoadBalancers",
          "type":"Microsoft.Resources/deployments",
