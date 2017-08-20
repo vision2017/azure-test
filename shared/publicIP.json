@@ -52,5 +52,10 @@
       }
     }
   ],
-  "outputs": {}
+  "outputs": {
+    "publicIPLBName": {
+      "type": "string",
+      "value": "[concat(parameters('lbPublicIPDnsNamePrefix'),'1',uniqueString(resourceGroup().id))]"
+    }
+  }
     }

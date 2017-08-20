@@ -64,6 +64,11 @@
       "type": "string",
       "defaultValue": "10.0.0.0/24"
     },
+    "vmWebLoadBalancerName": {
+      "type": "string",
+      "defaultValue": "LB1",
+      "minlength": 1
+    },
     "baseUrl": {
       "type": "string",
       "metadata": {
@@ -454,7 +459,8 @@
       "creatingStorageAccounts": "[concat(parameters('baseUrl'),'/shared','/storageAccounts.json')]",
       "publicIPAdressSetup": "[concat(parameters('baseUrl'),'/shared','/publicIP.json')]",
       "availabilitySetSetup": "[concat(parameters('baseUrl'),'/shared','/availabilitySets.json')]",
-      "vnetSetup": "[concat(parameters('baseUrl'),'/shared','/vnetPrivate.json')]"
+      "vnetSetup": "[concat(parameters('baseUrl'),'/shared','/vnetPrivate.json')]",
+      "setupLB1": "[concat(parameters('baseUrl'),'/shared','/loadBalancer1.json')]"
 
     }
 
@@ -554,99 +560,34 @@
             }
           }
          }
-      }/*,
+      },
       {
          "name":"SettingUpLoadBalancers",
          "type":"Microsoft.Resources/deployments",
          "apiVersion":"2015-01-01",
-         "dependsOn":[
-            "Microsoft.Resources/deployments/SettingUpSharepointCentralAdminPublicIP",
-            "Microsoft.Resources/deployments/SettingUpSharepointWebPublicIP",
-            "Microsoft.Resources/deployments/SettingUpRdp",
-            "Microsoft.Resources/deployments/CreatingVirtualNetwork"
-         ],
+        "dependsOn": [          
+          "Microsoft.Resources/deployments/SettingUpPublicIp",
+          "Microsoft.Resources/deployments/CreatingVirtualNetwork"
+        ],
          "properties":{
             "mode":"Incremental",
             "templateLink":{
-               "uri":"[variables('configuration').setupLBsUrl]",
+               "uri":"[variables('configuration').setupLB1]",
                "contentVersion":"1.0.0.0"
             },
-            "parameters":{
-               "location":{
-                  "value":"[parameters('location')]"
-               },
-               "spCALBName":{
-                  "value":"[variables('lbSettings').spCALBName]"
-               },
-               "spCALBFE":{
-                  "value":"[variables('lbSettings').spCALBFE]"
-               },
-               "spCAResourceId":{
-                  "value":"[variables('ids').spCAResourceId]"
-               },
-               "spCALBBE":{
-                  "value":"[variables('lbSettings').spCALBBE]"
-               },
-               "spCANAT":{
-                  "value":"[variables('spCANAT')]"
-               },
-               "spCAlbFEConfigID":{
-                  "value":"[variables('derivedIds').spCAlbFEConfigID]"
-               },
-               "spWebLBName":{
-                  "value":"[variables('lbSettings').spWebLBName]"
-               },
-               "spWebLBFE":{
-                  "value":"[variables('lbSettings').spWebLBFE]"
-               },
-               "spWebResourceId":{
-                  "value":"[variables(concat('spWebResourceId',parameters('spWebIPNewOrExisting')))]"
-               },
-               "spWebLBBE":{
-                  "value":"[variables('lbSettings').spWebLBBE]"
-               },
-               "spWebLB":{
-                  "value":"[variables('lbSettings').spWebLB]"
-               },
-               "spWebLBFEConfigID":{
-                  "value":"[variables('derivedIds').spWebLBFEConfigID]"
-               },
-               "spWebBEAddressPoolID":{
-                  "value":"[variables('derivedIds').spWebBEAddressPoolID]"
-               },
-               "spWebProbeID":{
-                  "value":"[variables('derivedIds').spWebProbeID]"
-               },
-               "spWebProbe":{
-                  "value":"[variables('spWebProbe')]"
-               },
-               "sqlLBName":{
-                  "value":"[variables('lbSettings').sqlLBName]"
-               },
-               "sqlLBFE":{
-                  "value":"[variables('lbSettings').sqlLBFE]"
-               },
-               "sqlLBIPAddress":{
-                  "value":"[parameters('sqlLBIPAddress')]"
-               },
-               "staticSubnetRef":{
-                  "value":"[variables('staticSubnetRef')]"
-               },
-               "sqlLBBE":{
-                  "value":"[variables('lbSettings').sqlLBBE]"
-               },
-               "sqllbFEConfigID":{
-                  "value":"[variables('derivedIds').sqllbFEConfigID]"
-               },
-               "sqllbProbeID":{
-                  "value":"[variables('derivedIds').sqllbProbeID]"
-               },
-               "SQLAOProbe":{
-                  "value":"[variables('SQLAOProbe')]"
-               }
+          "parameters": {
+            "location": {
+              "value": "[parameters('location')]"
+            },
+            "vmWebLoadBalancerName": {
+              "value": "[parameters('vmWebLoadBalancerName')]"
+            },
+            "publicIPLBName": {
+              "value": "[reference('SettingUpPublicIp').outputs.publicIPLBName.value]"
             }
+          }
          }
-      },
+      }/*,
       {
          "name":"CreatingNetworkInterfaces",
          "type":"Microsoft.Resources/deployments",
