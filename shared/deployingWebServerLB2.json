@@ -2,10 +2,7 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "storageAccountType": {
-      "type": "array",
-      "defaultValue": [ "Standard_LRS", "Standard_LRS" ]
-    },
+    
     "storageAccountNamePrefix": {
       "type": "string",
       "defaultValue": "part1",
@@ -19,11 +16,6 @@
     "vmNamePrefix": {
       "type": "string",
       "defaultValue": "Server",
-      "minLength": 1
-    },
-    "vNetPrivateName": {
-      "type": "string",
-      "defaultValue": "web-vnet-private",
       "minLength": 1
     },
     "vNetPrivate3Name": {
@@ -49,35 +41,6 @@
         "2016-Datacenter"
       ]
     },
-    "webPublicIPDnsNamePrefix": {
-      "type": "string",
-      "defaultValue": "webrdpip",
-      "minLength": 1
-    },
-    "vmWebLoadBalancerName": {
-      "type": "string",
-      "defaultValue": "LB1",
-      "minlength": 1
-    },
-    "vNSGName": {
-      "type": "string",
-      "defaultValue": "NSG"
-    },
-    "rdpSubnetPrefix1": {
-      "type": "string",
-      "defaultValue": "86.57.255.88/29"
-
-    },
-    "rdpSubnetPrefix2": {
-      "type": "string",
-      "defaultValue": "80.249.92.182"
-
-    },
-    "as-vmWebName": {
-      "type": "string",
-      "defaultValue": "as-vmWeb",
-      "minLength": 1
-    },
     "vmWebIISDSCModule": {
       "type": "string",
       "defaultValue": "https://github.com/vision2017/dsc-webapp/raw/master/DSC/IIS.zip"
@@ -89,12 +52,6 @@
     "vmWebIISDSCFunction": {
       "type": "string",
       "defaultValue": "IIS.ps1\\Main"
-    },
-
-    "publicIPLBDnsName": {
-      "type": "string",
-      "defaultValue": "lb1",
-      "minLength": 1
     },
     "locationServer3": {
       "type": "string"
@@ -121,22 +78,12 @@
       "minLength": 1
     }
   },
-  "variables": {
-    "vNetPrivatePrefix": "10.0.0.0/16",
-    "vNetPrivateSubnet1Name": "Subnet-1",
-    "vNetPrivateSubnet1Prefix": "10.0.0.0/24",
+  "variables": {    
     "serverImagePublisher": "MicrosoftWindowsServer",
     "serverImageOffer": "WindowsServer",
     "serverOSDiskName": "ServerOSDisk",
     "vmSize": "Standard_D1_v2",
-    "serverStorageAccountContainerName": "vhds",
-    "vmServerVnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vNetPrivateName'))]",
-    "vmServerSubnetRef": "[concat(variables('vmServerVnetID'), '/subnets/', variables('vNetPrivateSubnet1Name'))]",
-    "lbID": "[resourceId('Microsoft.Network/loadBalancers',parameters('vmWebLoadBalancerName'))]",
-    "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/LoadBalancerFrontEnd')]",
-    "lbPoolID": "[concat(variables('lbID'),'/backendAddressPools/BackendPool1')]",
-    "lbProbeID": "[concat(variables('lbID'),'/probes/tcpProbe')]",
-    "publicIPLBName": "publicIPLB",
+    "serverStorageAccountContainerName": "vhds",    
     "vNet3Prefix": "10.123.0.0/16",
     "vNet3Subnet1Name": "Subnet-1",
     "vNet3Subnet1Prefix": "10.123.0.0/24",
@@ -147,8 +94,6 @@
     "frontEndIPConfigID2": "[concat(variables('lbID2'),'/frontendIPConfigurations/LoadBalancerFrontEnd')]",
     "lbPoolID2": "[concat(variables('lbID2'),'/backendAddressPools/BackendPool1')]",
     "lbProbeID2": "[concat(variables('lbID2'),'/probes/tcpProbe')]"
-
-
   },
 
   "resources": [

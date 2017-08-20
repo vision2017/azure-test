@@ -14,7 +14,7 @@
       "metadata": {
         "description": "The region to deploy the resources into"
       },
-      "defaultValue": "West US"
+      "defaultValue": "North Europe"
     },
     "storageAccountNamePrefix": {
       "type": "string",
