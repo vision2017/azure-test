@@ -41,18 +41,6 @@
         "2016-Datacenter"
       ]
     },
-    "vmWebIISDSCModule": {
-      "type": "string",
-      "defaultValue": "https://github.com/vision2017/dsc-webapp/raw/master/DSC/IIS.zip"
-    },
-    "webDeployPackagePath": {
-      "type": "string",
-      "defaultValue": "https://github.com/vision2017/dsc-webapp/raw/master/WebDeploy/Site.zip"
-    },
-    "vmWebIISDSCFunction": {
-      "type": "string",
-      "defaultValue": "IIS.ps1\\Main"
-    },
     "locationServer3": {
       "type": "string"
     },
@@ -82,7 +70,7 @@
     "serverImagePublisher": "MicrosoftWindowsServer",
     "serverImageOffer": "WindowsServer",
     "serverOSDiskName": "ServerOSDisk",
-    "vmSize": "Standard_D1_v2",
+    "vmSize": "Standard_D2_v2",
     "serverStorageAccountContainerName": "vhds",    
     "vNet3Prefix": "10.123.0.0/16",
     "vNet3Subnet1Name": "Subnet-1",
@@ -214,34 +202,7 @@
         }
       },
       "resources": [
-        {
-          "name": "Microsoft.Powershell.DSC",
-          "type": "extensions",
-          "location": "[parameters('locationServer3')]",
-          "apiVersion": "2016-03-30",
-          "dependsOn": [
-            "[resourceId('Microsoft.Compute/virtualMachines', concat(parameters('vmNamePrefix'),'3'))]"
-          ],
-          "tags": {
-            "displayName": "IIS"
-          },
-          "properties": {
-            "publisher": "Microsoft.Powershell",
-            "type": "DSC",
-            "typeHandlerVersion": "2.19",
-            "autoUpgradeMinorVersion": true,
-            "settings": {
-              "modulesUrl": "[parameters('vmWebIISDSCModule')]",
-              "configurationFunction": "[parameters('vmWebIISDSCFunction')]",
-              "Properties": {
-                "nodeName": "[concat(parameters('vmNamePrefix'),'3')]",
-                "WebDeployPackagePath": "[parameters('webDeployPackagePath')]"
-              }
-
-            },
-            "protectedSettings": {}
-          }
-        }
+        
       ]
     },
     {

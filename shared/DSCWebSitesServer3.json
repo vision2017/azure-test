@@ -1,0 +1,53 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string"
+    },    
+    "vmNamePrefix": {
+      "type": "string"
+    },
+    "vmWebIISDSCModule": {
+      "type": "string"
+    },
+    "webDeployPackagePath": {
+      "type": "string"
+    },
+    "vmWebIISDSCFunction": {
+      "type": "string"
+    }   
+  },
+  "variables": { },
+  "resources": [
+    {
+      "name": "[concat(parameters('vmNamePrefix'),'3','/dscExtension')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[parameters('location')]",
+      "apiVersion": "2015-06-15",
+      
+
+      "tags": {
+        "displayName": "[concat('MicrosoftPowershellDSC','3')]"
+      },
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.19",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "modulesUrl": "[parameters('vmWebIISDSCModule')]",
+          "configurationFunction": "[parameters('vmWebIISDSCFunction')]",
+          "Properties": {
+            "nodeName": "[concat(parameters('vmNamePrefix'),'3')]",
+            "WebDeployPackagePath": "[parameters('webDeployPackagePath')]"
+          }
+
+        },
+        "protectedSettings": {}
+      }
+
+    }
+  ],
+      "outputs": {}
+    }
