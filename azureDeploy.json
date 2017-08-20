@@ -816,9 +816,6 @@
           "vmNamePrefix": {
             "value": "[parameters('vmNamePrefix')]"
           },
-          "webPublicIPDnsNamePrefix": {
-            "value": "[parameters('webPublicIPDnsNamePrefix')]"
-          },
           "vmWebIISDSCModule": {
             "value": "[parameters('vmWebIISDSCModule')]"
           },
