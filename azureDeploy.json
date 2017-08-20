@@ -94,6 +94,49 @@
       "type": "string",
       "defaultValue": "vmNetwork",
       "minLength": 1
+    },   
+    "vmNamePrefix": {
+      "type": "string",
+      "defaultValue": "Server",
+      "minLength": 1
+    },
+    "serverAdminUserName": {
+      "type": "string",
+      "defaultValue": "vmAdmin",
+      "minLength": 1
+    },
+    "serverAdminPassword": {
+      "type": "securestring"
+    },
+    "serverWindowsOSVersion": {
+      "type": "string",
+      "defaultValue": "2016-Datacenter",
+      "allowedValues": [
+        "2008-R2-SP1",
+        "2012-Datacenter",
+        "2012-R2-Datacenter",
+        "2016-Datacenter"
+      ]
+    },
+    "serverImagePublisher": {
+      "type": "string",
+      "defaultValue": "MicrosoftWindowsServer"
+    },
+    "serverImageOffer": {
+      "type": "string",
+      "defaultValue": "WindowsServer"
+    },
+    "serverOSDiskName": {
+      "type": "string",
+      "defaultValue": "ServerOSDisk"
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D1_v2"
+    },
+    "serverStorageAccountContainerName": {
+      "type": "string",
+      "defaultValue": "vhds"
     },
     "baseUrl": {
       "type": "string",
@@ -488,7 +531,8 @@
       "vnetSetup": "[concat(parameters('baseUrl'),'/shared','/vnetPrivate.json')]",
       "setupLB1": "[concat(parameters('baseUrl'),'/shared','/loadBalancer1.json')]",
       "setupNSG": "[concat(parameters('baseUrl'),'/shared','/networkSecurityGroup.json')]",
-      "creatingNics": "[concat(parameters('baseUrl'),'/shared','/networkInterfaces1.json')]"
+      "creatingNics": "[concat(parameters('baseUrl'),'/shared','/networkInterfaces1.json')]",
+      "provisioningWebServers": "[concat(parameters('baseUrl'),'/shared','/webServers.json')]"
 
     }
 
@@ -683,72 +727,62 @@
             }
           }
          }
-      }/*,
+      },
       {
-         "name":"ProvisioningPrimaryADDomainController",
+         "name":"ProvisioningWebServers",
          "type":"Microsoft.Resources/deployments",
          "apiVersion":"2015-01-01",
          "dependsOn":[
             "Microsoft.Resources/deployments/CreatingStorageAccounts",
             "Microsoft.Resources/deployments/CreatingNetworkInterfaces",
-            "Microsoft.Resources/deployments/CreatingAvailabilitySets",
-            "Microsoft.Resources/deployments/SettingUpRdp"
+            "Microsoft.Resources/deployments/CreatingAvailabilitySets"            
          ],
          "properties":{
             "mode":"Incremental",
             "templateLink":{
-               "uri":"[variables('configuration').provisioningPrimaryDCURL]",
+               "uri":"[variables('configuration').provisioningWebServers]",
                "contentVersion":"1.0.0.0"
             },
-            "parameters":{
-               "adPDCVMName":{
-                  "value":"[variables('vmSettings').adPDCVMName]"
-               },
-               "location":{
-                  "value":"[parameters('location')]"
-               },
-               "storageAccountNamePrefix":{
-                  "value":"[parameters('storageAccountNamePrefix')]"
-               },
-               "availabilitySet":{
-                  "value":"[variables('ids').adAvailabilitySetName]"
-               },
-               "adVMSize":{
-                  "value":"[parameters('adVMSize')]"
-               },
-               "adminUsername":{
-                  "value":"[parameters('adminUsername')]"
-               },
-               "adminPassword":{
-                  "value":"[parameters('adminPassword')]"
-               },
-               "windowsImagePublisher":{
-                  "value":"[variables('vmSettings').windowsImagePublisher]"
-               },
-               "windowsImageOffer":{
-                  "value":"[variables('vmSettings').windowsImageOffer]"
-               },
-               "windowsImageSKU":{
-                  "value":"[variables('vmSettings').windowsImageSKU]"
-               },
-               "vmContainerName":{
-                  "value":"[variables('vmSettings').vmContainerName]"
-               },
-               "adPDCNicName":{
-                  "value":"[variables('adPDCNicName')]"
-               },
-               "domainName":{
-                  "value":"[parameters('domainName')]"
-               },
-               "adPDCConfigurationFunction":{
-                  "value":"[variables('configuration').adPDCConfigurationFunction]"
-               },
-               "adPDCModulesURL":{
-                  "value":"[variables('configuration').adPDCModulesURL]"
-               }
+          "parameters": {
+            "location": {
+              "value": "[parameters('location')]"
+            },
+            "storageAccountNamePrefix": {
+              "value": "[parameters('storageAccountNamePrefix')]"
+            },
+            "networkInterfaceNamePrefix": {
+              "value": "[parameters('networkInterfaceNamePrefix')]"
+            },
+            "vmNamePrefix": {
+              "value": "[parameters('vmNamePrefix')]"
+            },
+            "serverAdminUserName": {
+              "value": "[parameters('serverAdminUserName')]"
+            },
+            "serverAdminPassword": {
+              "value": "[parameters('serverAdminPassword')]"
+            },
+            "serverWindowsOSVersion": {
+              "value": "[parameters('serverWindowsOSVersion')]"
+            },
+            "serverImagePublisher": {
+              "value": "[parameters('serverImagePublisher')]"
+            },
+            "serverImageOffer": {
+              "value": "[parameters('serverImageOffer')]"
+            },
+            "serverOSDiskName": {
+              "value": "[parameters('serverOSDiskName')]"
+            },
+            "vmSize": {
+              "value": "[parameters('vmSize')]"
+            },
+            "serverStorageAccountContainerName": {
+              "value": "[parameters('serverStorageAccountContainerName')]"
             }
+          }
          }
-      },
+      }/*,
       {
          "name":"UpdatingDNStoPrimaryADVM",
          "type":"Microsoft.Resources/deployments",
