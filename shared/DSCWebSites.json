@@ -22,7 +22,7 @@
 
   "resources": [
     {
-      "name": "Microsoft.Powershell.DSC",
+      "name": "concat('MicrosoftPowershellDSC',copyIndex(1))",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "location": "[parameters('location')]",
       "apiVersion": "2016-04-30-preview",
@@ -30,27 +30,27 @@
         "count": 2,
         "name": "[concat(parameters('vmNamePrefix'),'Copy')]"
       },
-      
+
       "tags": {
         "displayName": "IIS"
       },
-       "properties": {
-            "publisher": "Microsoft.Powershell",
-            "type": "DSC",
-            "typeHandlerVersion": "2.9",
-            "autoUpgradeMinorVersion": true,
-            "settings": {
-              "modulesUrl": "[parameters('vmWebIISDSCModule')]",
-              "configurationFunction": "[parameters('vmWebIISDSCFunction')]",
-              "Properties": {
-                "nodeName": "[concat(parameters('vmNamePrefix'),copyIndex(1))]",
-                "WebDeployPackagePath": "[parameters('webDeployPackagePath')]"
-              }
-
-            },
-            "protectedSettings": {}
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.9",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "modulesUrl": "[parameters('vmWebIISDSCModule')]",
+          "configurationFunction": "[parameters('vmWebIISDSCFunction')]",
+          "Properties": {
+            "nodeName": "[concat(parameters('vmNamePrefix'),copyIndex(1))]",
+            "WebDeployPackagePath": "[parameters('webDeployPackagePath')]"
           }
-     
+
+        },
+        "protectedSettings": {}
+      }
+
     }
   ],
       "outputs": {}
