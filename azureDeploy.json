@@ -848,6 +848,9 @@
         "parameters": {
           "locationServer3": {
             "value": "[parameters('location3')]"
+          },
+          "serverAdminPassword": {
+            "value": "[parameters('serverAdminPassword')]"
           }
 
         }
