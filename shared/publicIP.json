@@ -1,0 +1,37 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "webPublicIPDnsNamePrefix": {
+      "type": "string"      
+    },
+    "location": {
+      "type": "string"
+    }
+  },
+  "variables": {},
+
+  "resources": [
+    {
+      "name": "[concat(parameters('webPublicIPDnsNamePrefix'),copyIndex(1),uniqueString(resourceGroup().id))]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "location": "[parameters('location')]",
+      "apiVersion": "2016-03-30",
+      "copy": {
+        "count": 2,
+        "name": "[concat(parameters('webPublicIPDnsNamePrefix'),'Copy')]"
+      },
+      "dependsOn": [],
+      "tags": {
+        "displayName": "[concat(parameters('webPublicIPDnsNamePrefix'),copyIndex(1),uniqueString(resourceGroup().id))]"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[concat(parameters('webPublicIPDnsNamePrefix'),copyIndex(1),uniqueString(resourceGroup().id))]"
+        }
+      }
+    }
+  ],
+  "outputs": {}
+    }
