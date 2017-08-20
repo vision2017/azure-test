@@ -677,6 +677,9 @@
             },
             "webPublicIPDnsNamePrefix": {
               "value": "[parameters('webPublicIPDnsNamePrefix')]"
+            },
+            "vNSGName": {
+              "value": "[parameters('vNSGName')]"
             }
           }
          }
