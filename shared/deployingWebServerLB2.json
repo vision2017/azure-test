@@ -1,0 +1,381 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageAccountType": {
+      "type": "array",
+      "defaultValue": [ "Standard_LRS", "Standard_LRS" ]
+    },
+    "storageAccountNamePrefix": {
+      "type": "string",
+      "defaultValue": "part1",
+      "minLength": 1
+    },
+    "networkInterfaceNamePrefix": {
+      "type": "string",
+      "defaultValue": "vmNetwork",
+      "minLength": 1
+    },
+    "vmNamePrefix": {
+      "type": "string",
+      "defaultValue": "Server",
+      "minLength": 1
+    },
+    "vNetPrivateName": {
+      "type": "string",
+      "defaultValue": "web-vnet-private",
+      "minLength": 1
+    },
+    "vNetPrivate3Name": {
+      "type": "string",
+      "defaultValue": "web-vnet3-private",
+      "minLength": 1
+    },
+    "serverAdminUserName": {
+      "type": "string",
+      "defaultValue": "vmAdmin",
+      "minLength": 1
+    },
+    "serverAdminPassword": {
+      "type": "securestring"
+    },
+    "serverWindowsOSVersion": {
+      "type": "string",
+      "defaultValue": "2016-Datacenter",
+      "allowedValues": [
+        "2008-R2-SP1",
+        "2012-Datacenter",
+        "2012-R2-Datacenter",
+        "2016-Datacenter"
+      ]
+    },
+    "webPublicIPDnsNamePrefix": {
+      "type": "string",
+      "defaultValue": "webrdpip",
+      "minLength": 1
+    },
+    "vmWebLoadBalancerName": {
+      "type": "string",
+      "defaultValue": "LB1",
+      "minlength": 1
+    },
+    "vNSGName": {
+      "type": "string",
+      "defaultValue": "NSG"
+    },
+    "rdpSubnetPrefix1": {
+      "type": "string",
+      "defaultValue": "86.57.255.88/29"
+
+    },
+    "rdpSubnetPrefix2": {
+      "type": "string",
+      "defaultValue": "80.249.92.182"
+
+    },
+    "as-vmWebName": {
+      "type": "string",
+      "defaultValue": "as-vmWeb",
+      "minLength": 1
+    },
+    "vmWebIISDSCModule": {
+      "type": "string",
+      "defaultValue": "https://github.com/vision2017/dsc-webapp/raw/master/DSC/IIS.zip"
+    },
+    "webDeployPackagePath": {
+      "type": "string",
+      "defaultValue": "https://github.com/vision2017/dsc-webapp/raw/master/WebDeploy/Site.zip"
+    },
+    "vmWebIISDSCFunction": {
+      "type": "string",
+      "defaultValue": "IIS.ps1\\Main"
+    },
+
+    "publicIPLBDnsName": {
+      "type": "string",
+      "defaultValue": "lb1",
+      "minLength": 1
+    },
+    "locationServer3": {
+      "type": "string"
+    },
+    "vmWebLoadBalancer2Name": {
+      "type": "string",
+      "defaultValue": "LB2",
+      "minlength": 1
+    },
+    "srv3storageType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_ZRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Premium_LRS"
+      ]
+    },
+    "publicIPLB2DnsName": {
+      "type": "string",
+      "defaultValue": "lb2",
+      "minLength": 1
+    }
+  },
+  "variables": {
+    "vNetPrivatePrefix": "10.0.0.0/16",
+    "vNetPrivateSubnet1Name": "Subnet-1",
+    "vNetPrivateSubnet1Prefix": "10.0.0.0/24",
+    "serverImagePublisher": "MicrosoftWindowsServer",
+    "serverImageOffer": "WindowsServer",
+    "serverOSDiskName": "ServerOSDisk",
+    "vmSize": "Standard_D1_v2",
+    "serverStorageAccountContainerName": "vhds",
+    "vmServerVnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vNetPrivateName'))]",
+    "vmServerSubnetRef": "[concat(variables('vmServerVnetID'), '/subnets/', variables('vNetPrivateSubnet1Name'))]",
+    "lbID": "[resourceId('Microsoft.Network/loadBalancers',parameters('vmWebLoadBalancerName'))]",
+    "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/LoadBalancerFrontEnd')]",
+    "lbPoolID": "[concat(variables('lbID'),'/backendAddressPools/BackendPool1')]",
+    "lbProbeID": "[concat(variables('lbID'),'/probes/tcpProbe')]",
+    "publicIPLBName": "publicIPLB",
+    "vNet3Prefix": "10.123.0.0/16",
+    "vNet3Subnet1Name": "Subnet-1",
+    "vNet3Subnet1Prefix": "10.123.0.0/24",
+    "server3VnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vNetPrivate3Name'))]",
+    "server3SubnetRef": "[concat(variables('Server3VnetID'), '/subnets/', variables('vNet3Subnet1Name'))]",
+    "publicIPLB2Name": "publicIPLB2",
+    "lbID2": "[resourceId('Microsoft.Network/loadBalancers',parameters('vmWebLoadBalancer2Name'))]",
+    "frontEndIPConfigID2": "[concat(variables('lbID2'),'/frontendIPConfigurations/LoadBalancerFrontEnd')]",
+    "lbPoolID2": "[concat(variables('lbID2'),'/backendAddressPools/BackendPool1')]",
+    "lbProbeID2": "[concat(variables('lbID2'),'/probes/tcpProbe')]"
+
+
+  },
+
+  "resources": [ 
+    {
+      "name": "[concat(parameters('storageAccountNamePrefix'),'3',uniqueString(resourceGroup().id))]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "North Europe",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "[concat(parameters('storageAccountNamePrefix'),'3',uniqueString(resourceGroup().id))]"
+      },
+      "properties": {
+        "accountType": "[parameters('srv3storageType')]"
+      }
+    },
+    {
+      "name": "[parameters('vNetPrivate3Name')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[parameters('locationServer3')]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "[parameters('vNetPrivate3Name')]"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('vNet3Prefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('vNet3Subnet1Name')]",
+            "properties": {
+              "addressPrefix": "[variables('vNet3Subnet1Prefix')]"
+            }
+          }          
+        ]
+      }
+    },
+    {
+      "name": "[concat(parameters('networkInterfaceNamePrefix'),'-','3','-nic-0')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[parameters('locationServer3')]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vNetPrivate3Name'))]",
+        "[resourceId('Microsoft.Network/loadBalancers/', parameters('vmWebLoadBalancer2Name'))]"
+        
+      ],
+      "tags": {
+        "displayName": "[concat(parameters('networkInterfaceNamePrefix'),'-','3','-nic-0')]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('Server3SubnetRef')]"
+              },
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[concat(variables('lbID2'), '/backendAddressPools/BackendPool1')]"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[concat(parameters('vmNamePrefix'),'3')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[parameters('locationServer3')]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', concat(parameters('storageAccountNamePrefix'),'3',uniqueString(resourceGroup().id)))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('networkInterfaceNamePrefix'),'-','3','-nic-0'))]"
+        
+      ],
+      "tags": {
+        "displayName": "[concat(parameters('vmNamePrefix'),'3')]"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[concat(parameters('vmNamePrefix'),'3')]",
+          "adminUsername": "[parameters('serverAdminUsername')]",
+          "adminPassword": "[parameters('serverAdminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('serverImagePublisher')]",
+            "offer": "[variables('serverImageOffer')]",
+            "sku": "[parameters('serverWindowsOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "Server3OSDisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(parameters('storageAccountNamePrefix'),'3',uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('serverStorageAccountContainerName'), '/', variables('serverOSDiskName'), '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('networkInterfaceNamePrefix'),'-','3','-nic-0'))]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "name": "Microsoft.Powershell.DSC",
+          "type": "extensions",
+          "location": "[parameters('locationServer3')]",
+          "apiVersion": "2016-03-30",
+          "dependsOn": [
+            "[resourceId('Microsoft.Compute/virtualMachines', concat(parameters('vmNamePrefix'),'3'))]"
+          ],
+          "tags": {
+            "displayName": "IIS"
+          },
+          "properties": {
+            "publisher": "Microsoft.Powershell",
+            "type": "DSC",
+            "typeHandlerVersion": "2.9",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "modulesUrl": "[parameters('vmWebIISDSCModule')]",
+              "configurationFunction": "[parameters('vmWebIISDSCFunction')]",
+              "Properties": {
+                "nodeName": "[concat(parameters('vmNamePrefix'),'3')]",
+                "WebDeployPackagePath": "[parameters('webDeployPackagePath')]"
+              }
+
+            },
+            "protectedSettings": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "[parameters('vmWebLoadBalancer2Name')]",
+      "type": "Microsoft.Network/loadBalancers",
+      "apiVersion": "2015-06-15",
+      "location": "[parameters('locationServer3')]",
+      "dependsOn": [
+        "[parameters('vNetPrivate3Name')]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPLB2Name'))]"
+      ],
+      "tags": {
+        "displayName": "[parameters('vmWebLoadBalancer2Name')]"
+      },
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPLB2Name'))]"
+              }
+            },
+            "name": "LoadBalancerFrontend"
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "BackendPool1"
+          }
+        ],
+        "loadBalancingRules": [
+          {
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[variables('frontEndIPConfigID2')]"
+              },
+              "backendAddressPool": {
+                "id": "[variables('lbPoolID2')]"
+              },
+              "probe": {
+                "id": "[variables('lbProbeID2')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 80,
+              "backendPort": 80,
+              "idleTimeoutInMinutes": 5
+            },
+            "name": "lbRule"
+          }
+        ],
+        "probes": [
+          {
+            "name": "tcpProbe",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 80,
+              "intervalInSeconds": 5,
+              "numberofProbes": 2
+            }
+          }
+        ]
+      }
+    },
+      {
+          "name": "[variables('publicIPLB2Name')]",
+          "type": "Microsoft.Network/publicIPAddresses",
+          "location": "[parameters('locationServer3')]",
+          "apiVersion": "2016-03-30",
+          "dependsOn": [ ],
+        "tags": {
+          "displayName": "[variables('publicIPLB2Name')]"
+        },
+          "properties": {
+              "publicIPAllocationMethod": "Dynamic",
+            "dnsSettings": {
+              "domainNameLabel": "[concat(parameters('publicIPLB2DnsName'),uniqueString(resourceGroup().id))]"
+            }
+          }
+      }
+  ],
+      "outputs": {}
+    }

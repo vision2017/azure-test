@@ -9,6 +9,13 @@
       },
       "defaultValue": "[resourceGroup().location]"
     },
+    "location3": {
+      "type": "string",
+      "metadata": {
+        "description": "The region to deploy the resources into"
+      },
+      "defaultValue": "West US"
+    },
     "storageAccountNamePrefix": {
       "type": "string",
       "metadata": {
@@ -137,7 +144,7 @@
     "serverStorageAccountContainerName": {
       "type": "string",
       "defaultValue": "vhds"
-    },    
+    },
     "vmWebIISDSCModule": {
       "type": "string",
       "defaultValue": "https://github.com/vision2017/dsc-webapp/raw/master/DSC/IIS.zip"
@@ -545,8 +552,8 @@
       "setupNSG": "[concat(parameters('baseUrl'),'/shared','/networkSecurityGroup.json')]",
       "creatingNics": "[concat(parameters('baseUrl'),'/shared','/networkInterfaces1.json')]",
       "provisioningWebServers": "[concat(parameters('baseUrl'),'/shared','/webServers.json')]",
-      "deployingWebSites": "[concat(parameters('baseUrl'),'/shared','/DSCWebSites.json')]"
-
+      "deployingWebSites": "[concat(parameters('baseUrl'),'/shared','/DSCWebSites.json')]",
+      "deployingWebServerLB2": "[concat(parameters('baseUrl'),'/shared','/deployingWebServerLB2.json')]"
     }
 
   },
@@ -825,6 +832,24 @@
           "vmWebIISDSCFunction": {
             "value": "[parameters('vmWebIISDSCFunction')]"
           }
+        }
+      }
+    },
+    {
+      "name": "DeployingWebServerLB2",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",      
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('configuration').deployingWebServerLB2]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "locationServer3": {
+            "value": "[parameters('location3')]"
+          }
+
         }
       }
     } /*,
