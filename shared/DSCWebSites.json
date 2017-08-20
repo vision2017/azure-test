@@ -19,10 +19,9 @@
     }   
   },
   "variables": { },
-
   "resources": [
     {
-      "name": "concat('MicrosoftPowershellDSC',copyIndex(1))",
+      "name": "[concat('MicrosoftPowershellDSC',copyIndex(1))]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "location": "[parameters('location')]",
       "apiVersion": "2016-04-30-preview",
@@ -32,7 +31,7 @@
       },
 
       "tags": {
-        "displayName": "IIS"
+        "displayName": "[concat('MicrosoftPowershellDSC',copyIndex(1))]"
       },
       "properties": {
         "publisher": "Microsoft.Powershell",
