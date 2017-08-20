@@ -3,9 +3,12 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "webPublicIPDnsNamePrefix": {
-      "type": "string"      
+      "type": "string"
     },
     "location": {
+      "type": "string"
+    },
+    "lbPublicIPDnsNamePrefix": {
       "type": "string"
     }
   },
@@ -29,6 +32,22 @@
         "publicIPAllocationMethod": "Dynamic",
         "dnsSettings": {
           "domainNameLabel": "[concat(parameters('webPublicIPDnsNamePrefix'),copyIndex(1),uniqueString(resourceGroup().id))]"
+        }
+      }
+    },
+    {
+      "name": "[concat(parameters('webPublicIPDnsNamePrefix'),'1',uniqueString(resourceGroup().id))]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "location": "[parameters('location')]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "[concat(parameters('webPublicIPDnsNamePrefix'),'1',uniqueString(resourceGroup().id))]"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[concat(parameters('webPublicIPDnsNamePrefix'),'1',uniqueString(resourceGroup().id))]"
         }
       }
     }

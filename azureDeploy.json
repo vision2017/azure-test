@@ -23,14 +23,30 @@
       },
       "defaultValue": [ "Standard_LRS", "Standard_LRS" ]
     },
+    "webPublicIPDnsNamePrefix": {
+      "type": "string",
+      "defaultValue": "webrdpip",
+      "minLength": 1,
+      "metadata": {
+        "description": "The public ip for rdp"
+      }
+    },
+    "lbPublicIPDnsNamePrefix": {
+      "type": "string",
+      "defaultValue": "publicIPLB",
+      "minLength": 1,
+      "metadata": {
+        "description": "The public ip for load balancer1"
+      }
+    },
     "baseUrl": {
       "type": "string",
       "metadata": {
         "description": "Base URL for Marketplace",
         "artifactsBaseUrl": ""
       },
-      "defaultValue": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/sharepoint-server-farm-ha"
-    }/*,
+      "defaultValue": "https://raw.githubusercontent.com/vision2017/azure-test/master"
+    } /*,
     "sharepointFarmName": {
       "type": "string",
       "metadata": {
@@ -397,8 +413,7 @@
       "spPreparationFunction": "PrepareSharePointServerHA.ps1\\PrepareSharePointServerHA",
       "spWebIPAdressSetupURL": "[concat(parameters('baseUrl'),'/publicip-',parameters('spWebIPNewOrExisting'),'.json')]",
       "spCAIPAdressSetupURL": "[concat(parameters('baseUrl'),'/publicip-','new.json')]",
-      "rdpIPAdressSetupURL": "[concat(parameters('baseUrl'),'/publicip-rdp.json')]",
-      "availabilitySetSetupURL": "[concat(parameters('baseUrl'),'/availabilitySets.json')]",
+       "availabilitySetSetupURL": "[concat(parameters('baseUrl'),'/availabilitySets.json')]",
       "provisioningPrimaryDCURL": "[concat(parameters('baseUrl'),'/provisioningPrimaryDomainController.json')]",
       "provisioningBackupDCURL": "[concat(parameters('baseUrl'),'/provisioningBackupDomainController.json')]",
       "configuringBackupDCURL": "[concat(parameters('baseUrl'),'/configuringBackupDomainController.json')]",
@@ -411,7 +426,9 @@
       "setupLBsUrl": "[concat(parameters('baseUrl'),'/setupLBs.json')]",
       "creatingNicsUrl": "[concat(parameters('baseUrl'),'/creatingNICS.json')]",
       */
-      "creatingStorageAccounts": "[concat(parameters('baseUrl'),'/shared/','/storageAccounts.json')]"
+      "creatingStorageAccounts": "[concat(parameters('baseUrl'),'/shared','/storageAccounts.json')]",
+      "publicIPAdressSetup": "[concat(parameters('baseUrl'),'/shared','/publicIP.json')]"
+
     }
 
   },
@@ -438,71 +455,30 @@
                }
             }
          }
+      },
+      {
+         "name":"SettingUpPublicIp",
+         "type":"Microsoft.Resources/deployments",
+         "apiVersion":"2015-01-01",
+         "properties":{
+            "mode":"Incremental",
+            "templateLink":{
+               "uri":"[variables('configuration').publicIPAdressSetup]",
+               "contentVersion":"1.0.0.0"
+            },
+          "parameters": {
+            "location": {
+              "value": "[parameters('location')]"
+            },
+            "webPublicIPDnsNamePrefix": {
+              "value": "[parameters('webPublicIPDnsNamePrefix')]"
+            },
+            "lbPublicIPDnsNamePrefix": {
+              "value": "[parameters('lbPublicIPDnsNamePrefix')]"
+            }
+          }
+         }
       }/*,
-      {
-         "name":"SettingUpRdp",
-         "type":"Microsoft.Resources/deployments",
-         "apiVersion":"2015-01-01",
-         "properties":{
-            "mode":"Incremental",
-            "templateLink":{
-               "uri":"[variables('configuration').rdpIPAdressSetupURL]",
-               "contentVersion":"1.0.0.0"
-            },
-            "parameters":{
-               "location":{
-                  "value":"[parameters('location')]"
-               },
-               "rdpIPAddressName":{
-                  "value":"[variables('rdpIPAddressName')]"
-               },
-               "rdpLBName":{
-                  "value":"[variables('lbSettings').rdpLBName]"
-               },
-               "rdpLBFE":{
-                  "value":"[variables('lbSettings').rdpLBFE]"
-               },
-               "adLBBE":{
-                  "value":"[variables('lbSettings').adLBBE]"
-               },
-               "RDPNAT":{
-                  "value":"[variables('RDPNAT')]"
-               },
-               "rdplbFEConfigID":{
-                  "value":"[variables('derivedIds').rdplbFEConfigID]"
-               }
-            }
-         }
-      },
-      {
-         "name":"SettingUpSharepointWebPublicIP",
-         "type":"Microsoft.Resources/deployments",
-         "apiVersion":"2015-01-01",
-         "properties":{
-            "mode":"Incremental",
-            "templateLink":{
-               "uri":"[variables('configuration').spWebIPAdressSetupURL]",
-               "contentVersion":"1.0.0.0"
-            },
-            "parameters":{
-               "location":{
-                  "value":"[parameters('location')]"
-               },
-               "publicIPAddressName":{
-                  "value":"[parameters('spWebIPAddressName')]"
-               },
-               "publicIPAddressType":{
-                  "value":"dynamic"
-               },
-               "dnsPrefix":{
-                  "value":"[parameters('dnsPrefix')]"
-               },
-               "publicIpRGName":{
-                  "value":"[parameters('spWebIPRGName')]"
-               }
-            }
-         }
-      },
       {
          "name":"SettingUpSharepointCentralAdminPublicIP",
          "type":"Microsoft.Resources/deployments",
