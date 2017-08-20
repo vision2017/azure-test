@@ -8,9 +8,6 @@
     "vmNamePrefix": {
       "type": "string"
     },
-    "webPublicIPDnsNamePrefix": {
-      "type": "string"
-    },
     "vmWebIISDSCModule": {
       "type": "string"
     },
