@@ -33,7 +33,7 @@
     },
     "lbPublicIPDnsNamePrefix": {
       "type": "string",
-      "defaultValue": "publicIPLB",
+      "defaultValue": "lbip",
       "minLength": 1,
       "metadata": {
         "description": "The public ip for load balancer1"
