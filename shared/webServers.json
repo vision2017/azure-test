@@ -1,0 +1,97 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string"
+    },
+    "storageAccountNamePrefix": {
+      "type": "string"
+    },
+    "networkInterfaceNamePrefix": {
+      "type": "string"
+    },
+    "vmNamePrefix": {
+      "type": "string"
+    },
+    "serverAdminUserName": {
+      "type": "string"
+    },
+    "serverAdminPassword": {
+      "type": "securestring"
+    },
+    "serverWindowsOSVersion": {
+      "type": "string"
+    },
+    "serverImagePublisher": {
+      "type": "string"
+    },
+    "serverImageOffer": {
+      "type": "string"
+    },
+    "serverOSDiskName": {
+      "type": "string"
+    },
+    "vmSize": {
+      "type": "string"
+    },
+    "serverStorageAccountContainerName": {
+      "type": "string"
+    }
+  },
+  "variables": {},
+
+  "resources": [
+    {
+      "name": "[concat(parameters('vmNamePrefix'),copyIndex(1))]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[parameters('location')]",
+      "apiVersion": "2015-06-15",
+      "copy": {
+        "count": 2,
+        "name": "[concat(parameters('vmNamePrefix'),'Copy')]"
+      },
+      "tags": {
+        "displayName": "[concat(parameters('vmNamePrefix'),copyIndex(1))]"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets/', 'as-vmWeb')]"
+        },
+        "osProfile": {
+          "computerName": "[concat(parameters('vmNamePrefix'),copyIndex(1))]",
+          "adminUsername": "[parameters('ServerAdminUsername')]",
+          "adminPassword": "[parameters('ServerAdminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[parameters('serverImagePublisher')]",
+            "offer": "[parameters('serverImageOffer')]",
+            "sku": "[parameters('serverWindowsOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[parameters('serverOSDiskName')]",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(parameters('storageAccountNamePrefix'),copyIndex(1),uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, parameters('serverStorageAccountContainerName'), '/', parameters('serverOSDiskName'), '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('networkInterfaceNamePrefix'),'-',copyIndex(1),'-nic-0'))]"
+            }
+          ]
+        }
+      },
+      "resources": []
+    }
+  ],
+      "outputs": {}
+    }
