@@ -94,7 +94,7 @@
       "type": "string",
       "defaultValue": "vmNetwork",
       "minLength": 1
-    },   
+    },
     "vmNamePrefix": {
       "type": "string",
       "defaultValue": "Server",
@@ -137,6 +137,18 @@
     "serverStorageAccountContainerName": {
       "type": "string",
       "defaultValue": "vhds"
+    },    
+    "vmWebIISDSCModule": {
+      "type": "string",
+      "defaultValue": "https://github.com/vision2017/dsc-webapp/raw/master/DSC/IIS.zip"
+    },
+    "webDeployPackagePath": {
+      "type": "string",
+      "defaultValue": "https://github.com/vision2017/dsc-webapp/raw/master/WebDeploy/Site.zip"
+    },
+    "vmWebIISDSCFunction": {
+      "type": "string",
+      "defaultValue": "IIS.ps1\\Main"
     },
     "baseUrl": {
       "type": "string",
@@ -532,107 +544,108 @@
       "setupLB1": "[concat(parameters('baseUrl'),'/shared','/loadBalancer1.json')]",
       "setupNSG": "[concat(parameters('baseUrl'),'/shared','/networkSecurityGroup.json')]",
       "creatingNics": "[concat(parameters('baseUrl'),'/shared','/networkInterfaces1.json')]",
-      "provisioningWebServers": "[concat(parameters('baseUrl'),'/shared','/webServers.json')]"
+      "provisioningWebServers": "[concat(parameters('baseUrl'),'/shared','/webServers.json')]",
+      "deployingWebSites": "[concat(parameters('baseUrl'),'/shared','/DSCWebSites.json')]"
 
     }
 
   },
-   "resources":[
-      {
-         "name":"CreatingStorageAccounts",
-         "type":"Microsoft.Resources/deployments",
-         "apiVersion":"2015-01-01",
-         "properties":{
-            "mode":"Incremental",
-            "templateLink":{
-               "uri":"[variables('configuration').creatingStorageAccounts]",
-               "contentVersion":"1.0.0.0"
-            },
-            "parameters":{
-               "location":{
-                  "value":"[parameters('location')]"
-               },
-               "storageAccountNamePrefix":{
-                  "value":"[parameters('storageAccountNamePrefix')]"
-               },
-               "storageAccountType":{
-                  "value":"[parameters('storageAccountType')]"
-               }
-            }
-         }
-      },
-      {
-         "name":"SettingUpPublicIp",
-         "type":"Microsoft.Resources/deployments",
-         "apiVersion":"2015-01-01",
-         "properties":{
-            "mode":"Incremental",
-            "templateLink":{
-               "uri":"[variables('configuration').publicIPAdressSetup]",
-               "contentVersion":"1.0.0.0"
-            },
-          "parameters": {
-            "location": {
-              "value": "[parameters('location')]"
-            },
-            "webPublicIPDnsNamePrefix": {
-              "value": "[parameters('webPublicIPDnsNamePrefix')]"
-            },
-            "lbPublicIPDnsNamePrefix": {
-              "value": "[parameters('lbPublicIPDnsNamePrefix')]"
-            }
-          }
-         }
-      },
-      {
-         "name":"CreatingAvailabilitySets",
-         "type":"Microsoft.Resources/deployments",
-         "apiVersion":"2015-01-01",
-        "properties": {
-          "mode": "Incremental",
-          "templateLink": {
-            "uri": "[variables('configuration').availabilitySetSetup]",
-            "contentVersion": "1.0.0.0"
+  "resources": [
+    {
+      "name": "CreatingStorageAccounts",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('configuration').creatingStorageAccounts]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
           },
-          "parameters": {
-            "location": {
-              "value": "[parameters('location')]"
-            },
-            "as-vmWebName": {
-              "value": "[parameters('as-vmWebName')]"
-            }
+          "storageAccountNamePrefix": {
+            "value": "[parameters('storageAccountNamePrefix')]"
+          },
+          "storageAccountType": {
+            "value": "[parameters('storageAccountType')]"
           }
         }
-      },
-      {
-         "name":"CreatingVirtualNetwork",
-         "type":"Microsoft.Resources/deployments",
-         "apiVersion":"2015-01-01",
-         "properties":{
-            "mode":"Incremental",
-            "templateLink":{
-               "uri":"[variables('configuration').vnetSetup]",
-               "contentVersion":"1.0.0.0"
-            },
-          "parameters": {
-            "location": {
-              "value": "[parameters('location')]"
-            },
-            "vNetPrivateName": {
-              "value": "[parameters('vNetPrivateName')]"
-            },
-            "vNetPrivatePrefix": {
-              "value": "[parameters('vNetPrivatePrefix')]"
-            },
-            "vNetPrivateSubnet1Name": {
-              "value": "[parameters('vNetPrivateSubnet1Name')]"
-            },
-            "vNetPrivateSubnet1Prefix": {
-              "value": "[parameters('vNetPrivateSubnet1Prefix')]"
-            }
+      }
+    },
+    {
+      "name": "SettingUpPublicIp",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('configuration').publicIPAdressSetup]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "webPublicIPDnsNamePrefix": {
+            "value": "[parameters('webPublicIPDnsNamePrefix')]"
+          },
+          "lbPublicIPDnsNamePrefix": {
+            "value": "[parameters('lbPublicIPDnsNamePrefix')]"
           }
-         }
-      },
+        }
+      }
+    },
+    {
+      "name": "CreatingAvailabilitySets",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('configuration').availabilitySetSetup]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "as-vmWebName": {
+            "value": "[parameters('as-vmWebName')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "CreatingVirtualNetwork",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('configuration').vnetSetup]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "vNetPrivateName": {
+            "value": "[parameters('vNetPrivateName')]"
+          },
+          "vNetPrivatePrefix": {
+            "value": "[parameters('vNetPrivatePrefix')]"
+          },
+          "vNetPrivateSubnet1Name": {
+            "value": "[parameters('vNetPrivateSubnet1Name')]"
+          },
+          "vNetPrivateSubnet1Prefix": {
+            "value": "[parameters('vNetPrivateSubnet1Prefix')]"
+          }
+        }
+      }
+    },
     {
       "name": "SettingUpLoadBalancers",
       "type": "Microsoft.Resources/deployments",
@@ -661,128 +674,163 @@
       }
     },
     {
-         "name":"SettingUpNetworkSecurityGroups",
-         "type":"Microsoft.Resources/deployments",
-         "apiVersion":"2015-01-01",
-        
-         "properties":{
-            "mode":"Incremental",
-            "templateLink":{
-               "uri":"[variables('configuration').setupNSG]",
-               "contentVersion":"1.0.0.0"
-            },
-          "parameters": {
-            "location": {
-              "value": "[parameters('location')]"
-            },
-            "vNSGName": {
-              "value": "[parameters('vNSGName')]"
-            },
-            "rdpSubnetPrefix1": {
-              "value": "[parameters('rdpSubnetPrefix1')]"
-            },
-            "rdpSubnetPrefix2": {
-              "value": "[parameters('rdpSubnetPrefix2')]"
-            }
+      "name": "SettingUpNetworkSecurityGroups",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('configuration').setupNSG]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "vNSGName": {
+            "value": "[parameters('vNSGName')]"
+          },
+          "rdpSubnetPrefix1": {
+            "value": "[parameters('rdpSubnetPrefix1')]"
+          },
+          "rdpSubnetPrefix2": {
+            "value": "[parameters('rdpSubnetPrefix2')]"
           }
-         }
-      },
-      {
-         "name":"CreatingNetworkInterfaces",
-         "type":"Microsoft.Resources/deployments",
-         "apiVersion":"2015-01-01",
-        "dependsOn": [
-          "Microsoft.Resources/deployments/CreatingVirtualNetwork",
-          "Microsoft.Resources/deployments/SettingUpPublicIp",
-          "Microsoft.Resources/deployments/SettingUpLoadBalancers",
-          "Microsoft.Resources/deployments/SettingUpNetworkSecurityGroups"
-        ],
-         "properties":{
-            "mode":"Incremental",
-            "templateLink":{
-               "uri":"[variables('configuration').creatingNics]",
-               "contentVersion":"1.0.0.0"
-            },
-          "parameters": {
-            "location": {
-              "value": "[parameters('location')]"
-            },
-            "vNetPrivateName": {
-              "value": "[parameters('vNetPrivateName')]"
-            },
-            "vNetPrivateSubnet1Name": {
-              "value": "[parameters('vNetPrivateSubnet1Name')]"
-            },
-            "lbID": {
-              "value": "[reference('SettingUpLoadBalancers').outputs.lbID.value]"
-            },
-            "networkInterfaceNamePrefix": {
-              "value": "[parameters('networkInterfaceNamePrefix')]"
-            },
-            "webPublicIPDnsNamePrefix": {
-              "value": "[parameters('webPublicIPDnsNamePrefix')]"
-            },
-            "vNSGName": {
-              "value": "[parameters('vNSGName')]"
-            }
+        }
+      }
+    },
+    {
+      "name": "CreatingNetworkInterfaces",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "Microsoft.Resources/deployments/CreatingVirtualNetwork",
+        "Microsoft.Resources/deployments/SettingUpPublicIp",
+        "Microsoft.Resources/deployments/SettingUpLoadBalancers",
+        "Microsoft.Resources/deployments/SettingUpNetworkSecurityGroups"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('configuration').creatingNics]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "vNetPrivateName": {
+            "value": "[parameters('vNetPrivateName')]"
+          },
+          "vNetPrivateSubnet1Name": {
+            "value": "[parameters('vNetPrivateSubnet1Name')]"
+          },
+          "lbID": {
+            "value": "[reference('SettingUpLoadBalancers').outputs.lbID.value]"
+          },
+          "networkInterfaceNamePrefix": {
+            "value": "[parameters('networkInterfaceNamePrefix')]"
+          },
+          "webPublicIPDnsNamePrefix": {
+            "value": "[parameters('webPublicIPDnsNamePrefix')]"
+          },
+          "vNSGName": {
+            "value": "[parameters('vNSGName')]"
           }
-         }
-      },
-      {
-         "name":"ProvisioningWebServers",
-         "type":"Microsoft.Resources/deployments",
-         "apiVersion":"2015-01-01",
-         "dependsOn":[
-            "Microsoft.Resources/deployments/CreatingStorageAccounts",
-            "Microsoft.Resources/deployments/CreatingNetworkInterfaces",
-            "Microsoft.Resources/deployments/CreatingAvailabilitySets"            
-         ],
-         "properties":{
-            "mode":"Incremental",
-            "templateLink":{
-               "uri":"[variables('configuration').provisioningWebServers]",
-               "contentVersion":"1.0.0.0"
-            },
-          "parameters": {
-            "location": {
-              "value": "[parameters('location')]"
-            },
-            "storageAccountNamePrefix": {
-              "value": "[parameters('storageAccountNamePrefix')]"
-            },
-            "networkInterfaceNamePrefix": {
-              "value": "[parameters('networkInterfaceNamePrefix')]"
-            },
-            "vmNamePrefix": {
-              "value": "[parameters('vmNamePrefix')]"
-            },
-            "serverAdminUserName": {
-              "value": "[parameters('serverAdminUserName')]"
-            },
-            "serverAdminPassword": {
-              "value": "[parameters('serverAdminPassword')]"
-            },
-            "serverWindowsOSVersion": {
-              "value": "[parameters('serverWindowsOSVersion')]"
-            },
-            "serverImagePublisher": {
-              "value": "[parameters('serverImagePublisher')]"
-            },
-            "serverImageOffer": {
-              "value": "[parameters('serverImageOffer')]"
-            },
-            "serverOSDiskName": {
-              "value": "[parameters('serverOSDiskName')]"
-            },
-            "vmSize": {
-              "value": "[parameters('vmSize')]"
-            },
-            "serverStorageAccountContainerName": {
-              "value": "[parameters('serverStorageAccountContainerName')]"
-            }
+        }
+      }
+    },
+    {
+      "name": "ProvisioningWebServers",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "Microsoft.Resources/deployments/CreatingStorageAccounts",
+        "Microsoft.Resources/deployments/CreatingNetworkInterfaces",
+        "Microsoft.Resources/deployments/CreatingAvailabilitySets"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('configuration').provisioningWebServers]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "storageAccountNamePrefix": {
+            "value": "[parameters('storageAccountNamePrefix')]"
+          },
+          "networkInterfaceNamePrefix": {
+            "value": "[parameters('networkInterfaceNamePrefix')]"
+          },
+          "vmNamePrefix": {
+            "value": "[parameters('vmNamePrefix')]"
+          },
+          "serverAdminUserName": {
+            "value": "[parameters('serverAdminUserName')]"
+          },
+          "serverAdminPassword": {
+            "value": "[parameters('serverAdminPassword')]"
+          },
+          "serverWindowsOSVersion": {
+            "value": "[parameters('serverWindowsOSVersion')]"
+          },
+          "serverImagePublisher": {
+            "value": "[parameters('serverImagePublisher')]"
+          },
+          "serverImageOffer": {
+            "value": "[parameters('serverImageOffer')]"
+          },
+          "serverOSDiskName": {
+            "value": "[parameters('serverOSDiskName')]"
+          },
+          "vmSize": {
+            "value": "[parameters('vmSize')]"
+          },
+          "serverStorageAccountContainerName": {
+            "value": "[parameters('serverStorageAccountContainerName')]"
           }
-         }
-      }/*,
+        }
+      }
+    },
+    {
+      "name": "DeployingWebSites ",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "Microsoft.Resources/deployments/ProvisioningWebServers"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('configuration').deployingWebSites]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "vmNamePrefix": {
+            "value": "[parameters('vmNamePrefix')]"
+          },
+          "webPublicIPDnsNamePrefix": {
+            "value": "[parameters('webPublicIPDnsNamePrefix')]"
+          },
+          "vmWebIISDSCModule": {
+            "value": "[parameters('vmWebIISDSCModule')]"
+          },
+          "webDeployPackagePath": {
+            "value": "[parameters('webDeployPackagePath')]"
+          },
+          "vmWebIISDSCFunction": {
+            "value": "[parameters('vmWebIISDSCFunction')]"
+          }
+        }
+      }
+    } /*,
       {
          "name":"UpdatingDNStoPrimaryADVM",
          "type":"Microsoft.Resources/deployments",
@@ -1302,7 +1350,7 @@
             }
          }
       }*/
-   ],
+  ],
    "outputs": {
     /* "fqdn": {
        "value": "[variables('sharepointWebfqdn')]",
